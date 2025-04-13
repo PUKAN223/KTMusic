@@ -4,10 +4,7 @@ import { stop } from "../Interactions/Buttons/stop";
 import { pause } from "../Interactions/Buttons/pause";
 import { volume } from "../Interactions/Buttons/volume";
 import { queue } from "../Interactions/Buttons/queue";
-import type Button from "../Interfaces/Buttons";
-import { loop } from "../Interactions/Buttons/loop";
-import { replay } from "../Interactions/Buttons/replay";
-const ButtonRegister: Array<Button> = [
+const ButtonRegister = [
     {
         id: "stop",
         exec: (interaction) => stop(interaction)
@@ -34,16 +31,15 @@ const ButtonRegister: Array<Button> = [
     },
     {
         id: "loop",
-        exec: (interaction) => loop(interaction)
+        exec: (interaction) => { }
     },
     {
         id: "autoplay",
-        exec: (interaction) => {}
+        exec: (interaction) => { }
     },
     {
         id: "replay",
-        exec: (interaction) => replay(interaction)
+        exec: (interaction) => { }
     }
-]
-
+];
 export default ButtonRegister;

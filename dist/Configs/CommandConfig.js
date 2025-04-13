@@ -1,8 +1,6 @@
 import ping from "../Interactions/Commands/ping/Index";
 import setup from "../Interactions/Commands/setup/Index";
-import type Command from "../Interfaces/Commands"
-
-const CommandRegister: Array<Command> = [
+const CommandRegister = [
     {
         name: "ping",
         description: "Use this for test commands!",
@@ -13,6 +11,5 @@ const CommandRegister: Array<Command> = [
         description: "Use this command to create music channels",
         exec: (interaction) => setup.callback(interaction)
     }
-]
-
+];
 export default CommandRegister;

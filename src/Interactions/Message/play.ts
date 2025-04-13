@@ -1,33 +1,60 @@
-import { Message, MessageComponentInteraction, OmitPartialGroupDMChannel } from "discord.js";
+import { Message, OmitPartialGroupDMChannel } from "discord.js";
 import Logger from "../../Utilities/Logger";
 import { client } from "../../Index";
 import { setEmbed } from "../../Utilities/HasSong";
 
-async function play(msg: OmitPartialGroupDMChannel<Message<boolean>>) {
-    Logger.info(msg.content)
-    let players = client.managers.getPlayer(msg.guild?.id as string)
-    if (!players) {
-        players = await client.managers.createPlayer({
-            guildId: msg.guild?.id as string,
-            textId: msg.channel.id,
-            voiceId: msg.member?.voice.channel?.id as string,
-            volume: 100,
-            deaf: true
-        })
-    }
+const songRequestQueue: OmitPartialGroupDMChannel<Message<boolean>>[] = [];
+let isProcessing = false;
 
-    const result = await client.managers.search(msg.content, { requester: msg.author })
-    if (!result.tracks.length) return msg.reply("No results found!");
-    if (result.type === "PLAYLIST") {
-        players.queue.add(result.tracks);
-    } else {
-        players.queue.add(result.tracks[0])
+async function processQueue() {
+    if (isProcessing || songRequestQueue.length === 0) return;
+    
+    isProcessing = true;
+    
+    while (songRequestQueue.length > 0) {
+        const msg = songRequestQueue.shift()!;
+        try {
+            if (msg.author.bot || !msg.member?.voice.channel) continue;
+            
+            await msg.delete().catch(() => {});
+
+            const guildId = msg.guild?.id as string;
+            let player = client.managers.getPlayer(guildId) || await client.managers.createPlayer({
+                guildId,
+                textId: msg.channel.id,
+                voiceId: msg.member.voice.channel.id,
+                volume: 100,
+                deaf: true
+            });
+
+            const result = await client.managers.search(msg.content, { requester: msg.author });
+            
+            if (!result.tracks.length) continue;
+
+            result.type === "PLAYLIST" ? player.queue.add(result.tracks) : player.queue.add(result.tracks[0]);
+
+            if (!player.playing && !player.paused) {
+                await player.play().catch(err => {
+                    Logger.error(`Playback error: ${err}`);
+                    player?.destroy();
+                });
+            }
+
+            await setEmbed(msg.channel, guildId);
+            
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+        } catch (error) {
+            Logger.error(`Play handler error: ${error}`);
+        }
     }
-    if (!players.playing && !players.paused) {
-        players.play()
-    }
-    setEmbed(msg.channel, msg.guild?.id as string)
-    await msg.delete()
+    
+    isProcessing = false;
+}
+
+async function play(msg: OmitPartialGroupDMChannel<Message<boolean>>) {
+    songRequestQueue.push(msg);
+    processQueue();
 }
 
 export default { callback: play };

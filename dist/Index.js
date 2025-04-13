@@ -1,15 +1,8 @@
-import { Client, GatewayIntentBits } from "discord.js"
-import { Kazagumo, Plugins } from "kazagumo"
-import { Connectors } from "shoukaku"
-import { config } from "./Configs/DiscordConfig"
-import EventRegister from "./Events/Index"
-
-declare module 'discord.js' {
-    interface Client {
-        managers: Kazagumo
-    }
-}
-
+import { Client, GatewayIntentBits } from "discord.js";
+import { Kazagumo, Plugins } from "kazagumo";
+import { Connectors } from "shoukaku";
+import { config } from "./Configs/DiscordConfig";
+import EventRegister from "./Events/Index";
 export const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
@@ -19,24 +12,24 @@ export const client = new Client({
         GatewayIntentBits.GuildMembers,
         GatewayIntentBits.GuildMessageTyping
     ]
-})
-export const startedTime = Date.now()
-
+});
+export const startedTime = Date.now();
 client.managers = new Kazagumo({
     defaultSearchEngine: "youtube",
     plugins: [new Plugins.PlayerMoved(client)],
     send: (guildId, payload) => {
         const guild = client.guilds.cache.get(guildId);
-        if (guild) guild.shard.send(payload);
+        if (guild)
+            guild.shard.send(payload);
     }
 }, new Connectors.DiscordJS(client), [
     {
-        "name": "Musik Hosting",
-        "auth": "wwweasycodero",
-        "url": "lavalink-v2.pericsq.ro:6677",
+        "name": "ChalresNaig Node",
+        "auth": "NAIGLAVA-dash.techbyte.host",
+        "url": "lavahatry4.techbyte.host:3000",
         "secure": false
     }
-])
+]);
 client.login(config.DISCORD_TOKEN).finally(() => {
     client.user?.setPresence({
         activities: [{ name: "Music Player", type: 0 }],
@@ -48,4 +41,4 @@ client.login(config.DISCORD_TOKEN).finally(() => {
     EventRegister.PlayerCreate;
     EventRegister.PlayerEnd;
     EventRegister.QueueUpdate;
-})
+});

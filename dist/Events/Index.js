@@ -6,5 +6,4 @@ const EventRegister = {
     PlayerEnd: import("./PlayerEnd/Index"),
     QueueUpdate: import("./QueueUpdate/Index")
 };
-
 export default EventRegister;
