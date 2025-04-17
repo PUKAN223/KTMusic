@@ -7,6 +7,5 @@ export async function skip(interaction: ButtonInteraction) {
     if (!player) return;
     player.skip()
     await new Promise(resolve => setTimeout(resolve, 1000));
-    setEmbed(interaction.channel as any, interaction.guildId as string);
     interaction.deferUpdate();
 }
